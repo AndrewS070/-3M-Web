@@ -7,6 +7,12 @@
     <style>
         body {
             background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         canvas {
             border: 1px solid black;
@@ -17,7 +23,7 @@
 <body onload="brython()">
     <canvas id="mycanvas" width="600" height="600"></canvas>
     <script type="text/python">
-        from browser import document, window
+        from browser import document
         from math import sqrt, pi, cos, sin
 
         canvas = document["mycanvas"]
