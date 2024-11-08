@@ -1,116 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Drawing with Turtle in Brython</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dibujo con Canvas</title>
     <style>
         body {
             background-color: black;
+            text-align: center;
         }
         canvas {
-            border: 1px solid black;
+            border: 1px solid white;
+            display: block;
+            margin: 0 auto;
             background-color: black;
         }
     </style>
 </head>
-<body onload="brython()">
-    <canvas id="mycanvas" width="600" height="600"></canvas>
-    <script type="text/python">
-        from browser import document, window
-        from math import sqrt, pi, cos, sin
+<body>
+    <canvas id="myCanvas" width="600" height="600"></canvas>
 
-        # Configurar canvas y contexto
-        canvas = document["mycanvas"]
-        context = canvas.getContext("2d")
+    <script>
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
 
-        class Turtle:
-            def __init__(self, canvas, context):
-                self.canvas = canvas
-                self.context = context
-                self.x = canvas.width // 2
-                self.y = canvas.height // 2
-                self.angle = 0
-                self.color = "#FFA216"
+        ctx.fillStyle = "#FFA216"; // Establecer color de la tortuga
+        ctx.strokeStyle = "#FFA216"; // Establecer color de la tortuga
 
-            def goto(self, x, y):
-                self.x = x
-                self.y = y
+        // Función para dibujar un círculo
+        function drawCircle(x, y, radius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
 
-            def forward(self, distance):
-                new_x = self.x + distance * cos(self.angle * pi / 180)
-                new_y = self.y + distance * sin(self.angle * pi / 180)
-                self.context.beginPath()
-                self.context.moveTo(self.x, self.y)
-                self.context.lineTo(new_x, new_y)
-                self.context.strokeStyle = self.color
-                self.context.stroke()
-                self.x, self.y = new_x, new_y
+        // Función para dibujar las hojas
+        function drawLeaves() {
+            for (let i = 0; i < 16; i++) {
+                for (let j = 0; j < 18; j++) {
+                    ctx.save();
+                    ctx.translate(300, 300); // Centrar el dibujo
+                    ctx.rotate(Math.PI / 2); // Rotar para la simetría
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(150 - j * 6, 0);
+                    ctx.stroke();
+                    ctx.rotate(Math.PI / 2);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(150 - j * 6, 0);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                ctx.beginPath();
+                ctx.arc(0, 0, 40, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
 
-            def right(self, angle):
-                self.angle -= angle
+        // Función para dibujar el centro de la flor (usando espiral áurea)
+        function drawFlowerCenter() {
+            const goldenAng = 137.508 * (Math.PI / 180); // Ángulo áureo
+            for (let i = 0; i < 140; i++) {
+                let r = 4 * Math.sqrt(i);
+                let theta = i * goldenAng;
+                let x = 300 + r * Math.cos(theta);
+                let y = 300 + r * Math.sin(theta);
+                drawCircle(x, y, 2); // Dibuja círculos pequeños
+            }
+        }
 
-            def left(self, angle):
-                self.angle += angle
+        // Función para dibujar la letra 'T'
+        function drawT(x, y) {
+            const positionsT = [
+                [x, y + 30], [x + 6, y + 30], [x + 12, y + 30], [x + 18, y + 30], [x + 24, y + 30],
+                [x + 12, y + 30], [x + 12, y + 24], [x + 12, y + 18], [x + 12, y + 12], [x + 12, y + 6], [x + 12, y]
+            ];
+            positionsT.forEach(([px, py]) => drawCircle(px, py, 4));
+        }
 
-            def circle(self, radius, extent=None):
-                steps = int(abs(radius * pi * (extent or 360) / 180))
-                step_length = 2 * pi * radius / steps
-                step_angle = (extent or 360) / steps
-                for _ in range(steps):
-                    self.forward(step_length)
-                    self.left(step_angle)
+        // Función para dibujar la letra 'Ú'
+        function drawU(x, y) {
+            const positionsU = [
+                [x, y + 30], [x, y + 24], [x, y + 18], [x, y + 12], [x, y + 6],
+                [x + 3, y + 3], [x + 6, y], [x + 12, y - 1], [x + 18, y], [x + 21, y + 3],
+                [x + 24, y + 6], [x + 24, y + 12], [x + 24, y + 18], [x + 24, y + 24], [x + 24, y + 30],
+                [x + 12, y + 36], [x + 16, y + 40]
+            ];
+            positionsU.forEach(([px, py]) => drawCircle(px, py, 4));
+        }
 
-            def penup(self):
-                self.context.beginPath()
-
-            def pendown(self):
-                self.context.closePath()
-
-            def setcolor(self, color):
-                self.color = color
-
-            def hideturtle(self):
-                pass
-
-            def done(self):
-                pass
-
-        turtle = Turtle(canvas, context)
-        turtle.goto(300, 300)
-
-        # Dibujar hojas
-        for i in range(16):
-            for j in range(18):
-                turtle.setcolor('#FFA216')
-                turtle.right(90)
-                turtle.circle(150 - j * 6, 90)
-                turtle.left(90)
-                turtle.circle(150 - j * 6, 90)
-                turtle.right(180)
-            turtle.circle(40, 24)
-
-        # Dibujar centro de la flor
-        turtle.setcolor('black')
-        golden_ang = 137.508
-        phi = golden_ang * (pi / 180)
-
-        for i in range(140):
-            r = 4 * sqrt(i)
-            theta = i * phi
-            x = 300 + r * cos(theta)
-            y = 300 + r * sin(theta)
-            turtle.penup()
-            turtle.goto(x, y)
-            turtle.pendown()
-            turtle.context.beginPath()
-            turtle.context.arc(x, y, 2, 0, 2 * pi)
-            turtle.context.fillStyle = '#8B4513'
-            turtle.context.fill()
-
-        turtle.hideturtle()
-        turtle.done()
-
+        // Llamadas para dibujar la flor
+        drawLeaves();
+        drawFlowerCenter();
+        drawT(-27, -20); // Dibuja la letra 'T'
+        drawU(7, -20);   // Dibuja la letra 'Ú'
     </script>
 </body>
 </html>
